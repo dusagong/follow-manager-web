@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+:root {
+  --color-purple: #833AB4;
+  --color-pink: #E1306C;
+  --color-orange: #F77737;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.gradient-bg {
+  background: linear-gradient(135deg, var(--color-purple) 0%, var(--color-pink) 50%, var(--color-orange) 100%);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--color-purple) 0%, var(--color-pink) 50%, var(--color-orange) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
