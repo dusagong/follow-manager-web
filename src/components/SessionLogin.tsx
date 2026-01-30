@@ -66,8 +66,17 @@ export function SessionLogin({ t, onSessionSubmit, onSwitchToUpload, isLoading }
       num: 2,
       title: t.sessionStep2,
       detail: (
-        <div className="mt-2 text-xs text-gray-500 bg-gray-100 rounded-lg p-3">
-          <p className="font-mono">F12 → Application → Cookies → instagram.com → sessionid</p>
+        <div className="mt-2 space-y-2">
+          <div className="text-xs text-gray-500 bg-gray-100 rounded-lg p-3">
+            <p className="font-mono">F12 → Application → Cookies → instagram.com → sessionid</p>
+          </div>
+          <div className="rounded-lg overflow-hidden border border-gray-200">
+            <img
+              src="/images/session-guide.png"
+              alt="Session ID 찾는 방법"
+              className="w-full h-auto"
+            />
+          </div>
         </div>
       ),
     },
@@ -172,6 +181,35 @@ export function SessionLogin({ t, onSessionSubmit, onSwitchToUpload, isLoading }
           >
             {t.switchToUpload}
           </button>
+        </div>
+
+        {/* Security Notice */}
+        <div className="mt-6 bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0 w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center">
+              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <h4 className="text-sm font-semibold text-amber-800 mb-1">안전한 서비스입니다</h4>
+              <p className="text-xs text-amber-700 mb-2">
+                Session ID는 팔로워/팔로잉 목록 조회에만 사용되며, 서버에 저장되지 않습니다.
+                비밀번호 변경, 게시물 삭제 등 계정 변경 작업은 절대 수행하지 않습니다.
+              </p>
+              <p className="text-xs text-amber-600 mb-2">
+                아래는 Instagram 공식 안내문입니다. 본 서비스는 로그인 정보를 요구하지 않으며,
+                오직 분석 편의를 위한 도구입니다.
+              </p>
+              <div className="rounded-lg overflow-hidden border border-amber-200">
+                <img
+                  src="/images/warning.png"
+                  alt="Instagram 공식 보안 안내"
+                  className="w-full h-auto"
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
