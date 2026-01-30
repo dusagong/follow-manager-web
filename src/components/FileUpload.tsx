@@ -5,9 +5,10 @@ interface FileUploadProps {
   t: Translations;
   onFilesSelected: (followersFile: File | null, followingFile: File | null) => void;
   isLoading: boolean;
+  onSwitchToLogin?: () => void;
 }
 
-export function FileUpload({ t, onFilesSelected, isLoading }: FileUploadProps) {
+export function FileUpload({ t, onFilesSelected, isLoading, onSwitchToLogin }: FileUploadProps) {
   const [followersFile, setFollowersFile] = useState<File | null>(null);
   const [followingFile, setFollowingFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -148,6 +149,18 @@ export function FileUpload({ t, onFilesSelected, isLoading }: FileUploadProps) {
             t.analyze
           )}
         </button>
+
+        {/* Switch to login mode */}
+        {onSwitchToLogin && (
+          <div className="mt-6 text-center">
+            <button
+              onClick={onSwitchToLogin}
+              className="text-purple-600 hover:text-purple-800 text-sm font-medium"
+            >
+              {t.switchToLogin}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

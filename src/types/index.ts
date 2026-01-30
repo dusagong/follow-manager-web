@@ -1,16 +1,26 @@
 export interface User {
   username: string;
+  full_name?: string;
+  profile_pic_url?: string;
+  is_private?: boolean;
+  is_verified?: boolean;
+  user_id?: string;
   href?: string;
   timestamp?: number;
 }
 
 export interface FollowData {
+  username?: string;
   followers: User[];
   following: User[];
-  notMutual: User[];
+  notMutual: User[];         // Following but not followed back
+  notFollowing?: User[];     // Followers I don't follow back
+  mutuals?: User[];          // Mutual follows
 }
 
-export type TabType = 'notMutual' | 'following' | 'followers';
+export type TabType = 'notMutual' | 'following' | 'followers' | 'notFollowing' | 'mutuals';
+
+export type ViewMode = 'upload' | 'login';
 
 export interface Translations {
   appTitle: string;
@@ -35,6 +45,23 @@ export interface Translations {
   dataLoaded: string;
   invalidFile: string;
   missingFiles: string;
+  // New translations for login mode
+  loginTitle: string;
+  loginDescription: string;
+  loginWithInstagram: string;
+  fetchingData: string;
+  fetchError: string;
+  notFollowing: string;
+  mutuals: string;
+  switchToUpload: string;
+  switchToLogin: string;
+  pasteSessionId: string;
+  sessionIdPlaceholder: string;
+  startAnalysis: string;
+  howToGetSession: string;
+  sessionStep1: string;
+  sessionStep2: string;
+  sessionStep3: string;
 }
 
 export const translations: Record<'ko' | 'en', Translations> = {
@@ -61,6 +88,23 @@ export const translations: Record<'ko' | 'en', Translations> = {
     dataLoaded: '데이터가 로드되었습니다',
     invalidFile: '올바른 형식의 파일이 아닙니다',
     missingFiles: '팔로워와 팔로잉 파일 모두 필요합니다',
+    // New translations
+    loginTitle: '자동 팔로우 분석',
+    loginDescription: '세션 ID를 입력하면 자동으로 팔로워/팔로잉을 분석합니다',
+    loginWithInstagram: '인스타그램으로 분석하기',
+    fetchingData: '데이터를 가져오는 중...',
+    fetchError: '데이터를 가져오는데 실패했습니다',
+    notFollowing: '내가 안팔로우',
+    mutuals: '맞팔',
+    switchToUpload: '파일 업로드로 분석',
+    switchToLogin: '자동 분석',
+    pasteSessionId: '세션 ID 입력',
+    sessionIdPlaceholder: '세션 ID를 붙여넣기 하세요',
+    startAnalysis: '분석 시작',
+    howToGetSession: '세션 ID 얻는 방법',
+    sessionStep1: '1. 인스타그램 웹(instagram.com)에 로그인',
+    sessionStep2: '2. F12 → Application → Cookies → sessionid 복사',
+    sessionStep3: '3. 위 입력창에 붙여넣기',
   },
   en: {
     appTitle: 'Follow Manager',
@@ -85,5 +129,22 @@ export const translations: Record<'ko' | 'en', Translations> = {
     dataLoaded: 'Data loaded successfully',
     invalidFile: 'Invalid file format',
     missingFiles: 'Both followers and following files are required',
+    // New translations
+    loginTitle: 'Auto Follow Analysis',
+    loginDescription: 'Enter your session ID to automatically analyze followers/following',
+    loginWithInstagram: 'Analyze with Instagram',
+    fetchingData: 'Fetching data...',
+    fetchError: 'Failed to fetch data',
+    notFollowing: "I Don't Follow",
+    mutuals: 'Mutuals',
+    switchToUpload: 'Upload Files',
+    switchToLogin: 'Auto Analysis',
+    pasteSessionId: 'Enter Session ID',
+    sessionIdPlaceholder: 'Paste your session ID here',
+    startAnalysis: 'Start Analysis',
+    howToGetSession: 'How to get Session ID',
+    sessionStep1: '1. Login to instagram.com in browser',
+    sessionStep2: '2. F12 → Application → Cookies → Copy sessionid',
+    sessionStep3: '3. Paste it in the input above',
   },
 };

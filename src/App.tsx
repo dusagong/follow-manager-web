@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react';
-import { translations } from './types';
+import { translations, type ViewMode } from './types';
 import { useFollowData } from './hooks/useFollowData';
 import { FileUpload } from './components/FileUpload';
+import { SessionLogin } from './components/SessionLogin';
 import { Results } from './components/Results';
 
 type Language = 'ko' | 'en';
@@ -11,9 +12,10 @@ function App() {
     const browserLang = navigator.language.toLowerCase();
     return browserLang.startsWith('ko') ? 'ko' : 'en';
   });
+  const [viewMode, setViewMode] = useState<ViewMode>('login');
 
   const t = translations[lang];
-  const { data, isLoading, error, processFiles, reset } = useFollowData();
+  const { data, isLoading, error, processFiles, fetchFromAPI, reset } = useFollowData();
 
   const handleFilesSelected = useCallback(
     async (followersFile: File | null, followingFile: File | null) => {
@@ -24,6 +26,17 @@ function App() {
       }
     },
     [processFiles]
+  );
+
+  const handleSessionSubmit = useCallback(
+    async (sessionId: string) => {
+      try {
+        await fetchFromAPI(sessionId);
+      } catch {
+        // Error is handled in the hook
+      }
+    },
+    [fetchFromAPI]
   );
 
   const handleReset = useCallback(() => {
@@ -52,8 +65,20 @@ function App() {
       {/* Main Content */}
       {data ? (
         <Results data={data} t={t} onReset={handleReset} />
+      ) : viewMode === 'login' ? (
+        <SessionLogin
+          t={t}
+          onSessionSubmit={handleSessionSubmit}
+          onSwitchToUpload={() => setViewMode('upload')}
+          isLoading={isLoading}
+        />
       ) : (
-        <FileUpload t={t} onFilesSelected={handleFilesSelected} isLoading={isLoading} />
+        <FileUpload
+          t={t}
+          onFilesSelected={handleFilesSelected}
+          isLoading={isLoading}
+          onSwitchToLogin={() => setViewMode('login')}
+        />
       )}
     </div>
   );

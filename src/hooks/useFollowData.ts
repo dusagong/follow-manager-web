@@ -3,11 +3,29 @@ import type { FollowData, User } from '../types';
 import { parseFollowersFile, parseFollowingFile, findNotMutual } from '../utils/parseInstagramData';
 
 const STORAGE_KEY = 'follow-manager-data';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
 interface StoredData {
   followers: User[];
   following: User[];
+  notFollowing?: User[];
+  mutuals?: User[];
+  username?: string;
   timestamp: number;
+}
+
+interface APIResponse {
+  status: string;
+  data: {
+    username: string;
+    followers: User[];
+    following: User[];
+    not_follow_back: User[];
+    not_following: User[];
+    mutuals: User[];
+    followers_count: number;
+    following_count: number;
+  };
 }
 
 export function useFollowData() {
@@ -23,13 +41,75 @@ export function useFollowData() {
         const parsed: StoredData = JSON.parse(stored);
         const notMutual = findNotMutual(parsed.following, parsed.followers);
         setData({
+          username: parsed.username,
           followers: parsed.followers,
           following: parsed.following,
           notMutual,
+          notFollowing: parsed.notFollowing,
+          mutuals: parsed.mutuals,
         });
       }
     } catch (e) {
       console.error('Error loading from localStorage:', e);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Fetch from API using session ID
+  const fetchFromAPI = useCallback(async (sessionId: string) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/v1/insta/fetch`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          session_id: sessionId,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'fetchError');
+      }
+
+      const result: APIResponse = await response.json();
+
+      if (result.status !== 'success') {
+        throw new Error('fetchError');
+      }
+
+      const newData: FollowData = {
+        username: result.data.username,
+        followers: result.data.followers,
+        following: result.data.following,
+        notMutual: result.data.not_follow_back,
+        notFollowing: result.data.not_following,
+        mutuals: result.data.mutuals,
+      };
+
+      setData(newData);
+
+      // Save to localStorage
+      const toStore: StoredData = {
+        username: result.data.username,
+        followers: result.data.followers,
+        following: result.data.following,
+        notFollowing: result.data.not_following,
+        mutuals: result.data.mutuals,
+        timestamp: Date.now(),
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(toStore));
+
+      return newData;
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : 'fetchError';
+      setError(errorMessage);
+      throw e;
     } finally {
       setIsLoading(false);
     }
@@ -71,10 +151,20 @@ export function useFollowData() {
 
       const notMutual = findNotMutual(following, followers);
 
+      // Calculate notFollowing (followers I don't follow back)
+      const followingSet = new Set(following.map(u => u.username));
+      const notFollowing = followers.filter(f => !followingSet.has(f.username));
+
+      // Calculate mutuals
+      const followerSet = new Set(followers.map(u => u.username));
+      const mutuals = following.filter(f => followerSet.has(f.username));
+
       const newData: FollowData = {
         followers,
         following,
         notMutual,
+        notFollowing,
+        mutuals,
       };
 
       setData(newData);
@@ -83,6 +173,8 @@ export function useFollowData() {
       const toStore: StoredData = {
         followers,
         following,
+        notFollowing,
+        mutuals,
         timestamp: Date.now(),
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(toStore));
@@ -108,6 +200,7 @@ export function useFollowData() {
     isLoading,
     error,
     processFiles,
+    fetchFromAPI,
     reset,
   };
 }

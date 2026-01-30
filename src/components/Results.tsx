@@ -14,6 +14,8 @@ export function Results({ data, t, onReset }: ResultsProps) {
 
   const tabs = useMemo(() => [
     { id: 'notMutual' as TabType, label: t.notMutual, count: data.notMutual.length, color: 'orange' },
+    { id: 'notFollowing' as TabType, label: t.notFollowing, count: data.notFollowing?.length ?? 0, color: 'blue' },
+    { id: 'mutuals' as TabType, label: t.mutuals, count: data.mutuals?.length ?? 0, color: 'green' },
     { id: 'following' as TabType, label: t.following, count: data.following.length, color: 'purple' },
     { id: 'followers' as TabType, label: t.followers, count: data.followers.length, color: 'pink' },
   ], [data, t]);
@@ -22,10 +24,16 @@ export function Results({ data, t, onReset }: ResultsProps) {
     switch (activeTab) {
       case 'notMutual':
         return data.notMutual;
+      case 'notFollowing':
+        return data.notFollowing ?? [];
+      case 'mutuals':
+        return data.mutuals ?? [];
       case 'following':
         return data.following;
       case 'followers':
         return data.followers;
+      default:
+        return [];
     }
   }, [activeTab, data]);
 
@@ -48,12 +56,12 @@ export function Results({ data, t, onReset }: ResultsProps) {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-3 mt-6">
+          <div className="flex gap-2 mt-6 overflow-x-auto pb-2">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`p-3 rounded-xl text-center transition-all ${
+                className={`flex-shrink-0 px-4 py-3 rounded-xl text-center transition-all min-w-[80px] ${
                   activeTab === tab.id
                     ? 'bg-white shadow-lg'
                     : 'bg-white/20 hover:bg-white/30'
