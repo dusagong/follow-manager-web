@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import type { Translations } from '../types';
 
 interface SessionLoginProps {
@@ -10,6 +10,19 @@ interface SessionLoginProps {
 
 export function SessionLogin({ t, onSessionSubmit, onSwitchToUpload, isLoading }: SessionLoginProps) {
   const [sessionId, setSessionId] = useState('');
+  const [currentStep, setCurrentStep] = useState(1);
+
+  // Auto-submit when session ID is pasted
+  const handlePaste = useCallback((e: React.ClipboardEvent<HTMLInputElement>) => {
+    const pastedText = e.clipboardData.getData('text').trim();
+    if (pastedText && pastedText.length > 20) {
+      setSessionId(pastedText);
+      // Auto submit after a short delay
+      setTimeout(() => {
+        onSessionSubmit(pastedText);
+      }, 300);
+    }
+  }, [onSessionSubmit]);
 
   const handleSubmit = useCallback(() => {
     if (sessionId.trim()) {
@@ -17,42 +30,115 @@ export function SessionLogin({ t, onSessionSubmit, onSwitchToUpload, isLoading }
     }
   }, [sessionId, onSessionSubmit]);
 
+  const openInstagram = useCallback(() => {
+    window.open('https://www.instagram.com/', '_blank');
+    setCurrentStep(2);
+  }, []);
+
+  // Listen for focus to detect when user comes back
+  useEffect(() => {
+    const handleFocus = () => {
+      if (currentStep === 2) {
+        setCurrentStep(3);
+      }
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [currentStep]);
+
+  const steps = [
+    {
+      num: 1,
+      title: t.sessionStep1,
+      action: (
+        <button
+          onClick={openInstagram}
+          className="mt-2 w-full py-2 px-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+        >
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073z"/>
+          </svg>
+          Instagram 열기
+        </button>
+      ),
+    },
+    {
+      num: 2,
+      title: t.sessionStep2,
+      detail: (
+        <div className="mt-2 text-xs text-gray-500 bg-gray-100 rounded-lg p-3">
+          <p className="font-mono">F12 → Application → Cookies → instagram.com → sessionid</p>
+        </div>
+      ),
+    },
+    {
+      num: 3,
+      title: t.sessionStep3,
+    },
+  ];
+
   return (
     <div className="min-h-screen gradient-bg flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full p-8">
-        <div className="text-center mb-8">
-          <div className="w-20 h-20 gradient-bg rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+        <div className="text-center mb-6">
+          <div className="w-16 h-16 gradient-bg rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
           </div>
           <h1 className="text-2xl font-bold text-gray-800 mb-2">{t.loginTitle}</h1>
           <p className="text-gray-500 text-sm">{t.loginDescription}</p>
         </div>
 
-        {/* How to get session ID */}
-        <div className="bg-purple-50 rounded-xl p-4 mb-6">
-          <h3 className="font-semibold text-purple-800 mb-2 text-sm">{t.howToGetSession}</h3>
-          <div className="text-xs text-purple-700 space-y-1">
-            <p>{t.sessionStep1}</p>
-            <p>{t.sessionStep2}</p>
-            <p>{t.sessionStep3}</p>
-          </div>
+        {/* Steps */}
+        <div className="space-y-3 mb-6">
+          {steps.map((step) => (
+            <div
+              key={step.num}
+              className={`p-4 rounded-xl border-2 transition-all ${
+                currentStep === step.num
+                  ? 'border-purple-500 bg-purple-50'
+                  : currentStep > step.num
+                  ? 'border-green-500 bg-green-50'
+                  : 'border-gray-200 bg-gray-50'
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <div
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                    currentStep > step.num
+                      ? 'bg-green-500 text-white'
+                      : currentStep === step.num
+                      ? 'bg-purple-500 text-white'
+                      : 'bg-gray-300 text-white'
+                  }`}
+                >
+                  {currentStep > step.num ? '✓' : step.num}
+                </div>
+                <div className="flex-1">
+                  <p className={`text-sm font-medium ${currentStep >= step.num ? 'text-gray-800' : 'text-gray-400'}`}>
+                    {step.title}
+                  </p>
+                  {currentStep === step.num && step.action}
+                  {currentStep >= step.num && step.detail}
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Session ID input */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            {t.pasteSessionId}
-          </label>
+        <div className="mb-4">
           <input
             type="text"
             value={sessionId}
             onChange={(e) => setSessionId(e.target.value)}
+            onPaste={handlePaste}
             placeholder={t.sessionIdPlaceholder}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
+            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all text-center"
             disabled={isLoading}
           />
+          <p className="text-xs text-gray-400 mt-2 text-center">붙여넣기하면 자동으로 분석이 시작됩니다</p>
         </div>
 
         {/* Start button */}
