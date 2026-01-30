@@ -3,7 +3,7 @@ import type { FollowData, User } from '../types';
 import { parseFollowersFile, parseFollowingFile, findNotMutual } from '../utils/parseInstagramData';
 
 const STORAGE_KEY = 'follow-manager-data';
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://devstudiomonorepo-production.up.railway.app';
 
 interface StoredData {
   followers: User[];
