@@ -72,7 +72,7 @@ export function SessionLogin({ t, onSessionSubmit, onSwitchToUpload, isLoading }
           </div>
           <div className="rounded-lg overflow-hidden border border-gray-200">
             <img
-              src="/images/session-guide.png"
+              src={`${import.meta.env.BASE_URL}images/session-guide.png`}
               alt="Session ID 찾는 방법"
               className="w-full h-auto"
             />
@@ -203,7 +203,7 @@ export function SessionLogin({ t, onSessionSubmit, onSwitchToUpload, isLoading }
               </p>
               <div className="rounded-lg overflow-hidden border border-amber-200">
                 <img
-                  src="/images/warning.png"
+                  src={`${import.meta.env.BASE_URL}images/warning.png`}
                   alt="Instagram 공식 보안 안내"
                   className="w-full h-auto"
                 />
